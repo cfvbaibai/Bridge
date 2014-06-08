@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html ng-app="PhoneStore">
+<head>
+    <title>Hello World AngularJS</title>
+    <script src="script/AngularJS/angular.min.js"></script>
+    <!-- angular-route.min.js must be referenced after angular.min.js! -->
+    <script src="script/AngularJS/angular-route.min.js"></script>
+    <script src="script/AngularJS/angular-resource.min.js"></script>
+    <script>
+        // Controllers
+        var ctrlPhoneList = ['$http', '$scope', 'Phone', function ($http, $scope, Phone) {
+            /* Get from direct AJAX call
+            $http.get('data/Phone.json').success(function (data) {
+                console.log(JSON.stringify(data));
+                $scope.phones = data;
+            });
+            */
+            // Get from REST API
+            $scope.phones = Phone.query();
+        }];
+        var ctrlPhoneDetail = ['$scope', '$http', '$routeParams', 'Phone', function ($scope, $http, $routeParams, Phone) {
+            var phoneId = $routeParams.phoneId;
+            /* Get from direct AJAX call
+            $http.get('data/' + phoneId + '.json').success(function (data) {
+                $scope.phone = data;
+                $scope.mainImageUrl = $scope.phone.imageUrls[0];
+            });
+            */
+            // Get from REST API
+            $scope.phone = Phone.get({ phoneId: phoneId }, function (phone) {
+                // Must assign mainImageUrl in the callback. Phone.get is actually an async call.
+                // Phone.get returns immediately after it is invoked, which contains only two properties
+                // {"$promise" : {}, "$resolved" : false}
+                $scope.mainImageUrl = $scope.phone.imageUrls[0]; 
+            });
+            $scope.setImage = function (imageUrl) {
+                $scope.mainImageUrl = imageUrl;
+            }
+        }];
+
+        // Resources
+        angular.module('PhoneStoreServices', ['ngResource']).
+            factory('Phone', ['$resource', function ($resource) {
+                return $resource('data/:phoneId.json', {}, {
+                    query: { method: 'GET', params: { phoneId: 'Phone' }, isArray: true }
+                });
+            }]);
+
+        // Filters
+        angular.module('PhoneStoreFilters', []).filter('checkmark', function () {
+            return function (input) {
+                return input ? '\u2713' : '\u2718';
+            };
+        });
+
+        // Routers
+        angular.module('PhoneStore', ['PhoneStoreFilters', 'PhoneStoreServices', 'ngRoute'])
+                .config(['$routeProvider', function ($routeProvider) {
+                    $routeProvider.
+                        when('/phones', { templateUrl: 'views/PhoneList.html', controller: ctrlPhoneList }).
+                        when('/phones/:phoneId', { templateUrl: 'views/PhoneDetail.html', controller: ctrlPhoneDetail }).
+                        otherwise({ redirectTo: '/phones' });
+        }]);
+    </script>
+</head>
+<body>
+    <div ng-view></div>
+</body>
+</html>

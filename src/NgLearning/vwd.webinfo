@@ -1,0 +1,14 @@
+﻿<?xml version="1.0"?>
+<!-- 
+  Visual Studio global web project settings.
+-->
+<VisualWebDeveloper>
+
+  <Globals>
+    
+  
+    
+  
+    <UserProperties data_2Phone_1json__JSONSchema="http://json-schema.org/address" App__Data_2Phone_1json__JSONSchema="http://json-schema.org/geo"/>
+  </Globals>
+</VisualWebDeveloper>
